@@ -1,0 +1,138 @@
+/* ==========================================
+   AI ASSISTANT — persistent panel, right side
+   ========================================== */
+.assistant-panel {
+    position: relative;
+    top: 50%;
+    right: 24px;
+    transform: translateY(-50%);
+    z-index: 1000;
+
+    width: 360px;
+    max-height: 70vh;
+    background-color: #FFFFFF;
+    border-radius: 20px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+}
+
+.assistant-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.04em;
+    color: #4B5563;
+    margin-bottom: 18px;
+}
+
+.assistant-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background-color: var(--color-amber);
+    flex-shrink: 0;
+}
+
+.assistant-messages {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
+.assistant-bubble {
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.assistant-bubble.user {
+    background-color: #FEF3C7;
+    color: #78350F;
+    align-self: flex-end;
+    max-width: 85%;
+}
+
+.assistant-bubble.bot {
+    background-color: #FFFFFF;
+    color: #1E293B;
+    border: 1px solid #F1F1F1;
+    border-left: 3px solid var(--color-amber);
+    align-self: flex-start;
+    max-width: 100%;
+}
+
+.assistant-typing {
+    display: flex;
+    gap: 5px;
+    padding: 4px 4px 0;
+}
+
+.assistant-typing span {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background-color: #FBD59A;
+    animation: assistant-pulse 1.3s ease-in-out infinite;
+}
+
+.assistant-typing span:nth-child(2) { animation-delay: 0.2s; }
+.assistant-typing span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes assistant-pulse {
+    0%, 100% { opacity: 0.3; transform: translateY(0); }
+    50% { opacity: 1; transform: translateY(-2px); }
+}
+
+.assistant-input-row {
+    display: flex;
+    gap: 8px;
+    padding-top: 14px;
+    border-top: 1px solid #F1F1F1;
+}
+
+.assistant-input-row input {
+    flex: 1;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1.5px solid #E5E7EB;
+    font-size: 0.9rem;
+    outline: none;
+}
+
+.assistant-input-row input:focus {
+    border-color: var(--color-amber);
+}
+
+.assistant-input-row button {
+    padding: 10px 16px;
+    border-radius: 10px;
+    border: none;
+    background-color: var(--color-amber);
+    color: #FFFFFF;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.assistant-input-row button:hover {
+    background-color: var(--color-amber-dark);
+}
+
+.assistant-input-row button:disabled {
+    background-color: var(--color-amber-disabled);
+    cursor: not-allowed;
+}
+
+@media (max-width: 900px) {
+    .assistant-panel {
+        display: none; /* hide on small screens so it doesn't cover mobile content */
+    }
+}
