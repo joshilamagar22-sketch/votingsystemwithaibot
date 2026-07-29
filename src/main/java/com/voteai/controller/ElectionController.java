@@ -15,16 +15,23 @@ public class ElectionController {
     @Autowired
     private ElectionService electionService;
 
+    // Create Election
     @PostMapping
-    public Election createElection(@RequestBody Election election) {
-        return electionService.createElection(election);
+    public ResponseEntity<Election> createElection(@RequestBody Election election) {
+
+        Election savedElection = electionService.createElection(election);
+
+        return ResponseEntity.ok(savedElection);
     }
 
+    // Get All Elections
     @GetMapping
-    public List<Election> getAllElections() {
-        return electionService.getAllElections();
+    public ResponseEntity<List<Election>> getAllElections() {
+
+        return ResponseEntity.ok(electionService.getAllElections());
     }
 
+    // Get Election By ID
     @GetMapping("/{id}")
     public ResponseEntity<Election> getElectionById(@PathVariable Long id) {
 
@@ -33,13 +40,13 @@ public class ElectionController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    // Update Election
     @PutMapping("/{id}")
     public ResponseEntity<Election> updateElection(
             @PathVariable Long id,
             @RequestBody Election election) {
 
-        Election updatedElection =
-                electionService.updateElection(id, election);
+        Election updatedElection = electionService.updateElection(id, election);
 
         if (updatedElection == null) {
             return ResponseEntity.notFound().build();
@@ -48,11 +55,16 @@ public class ElectionController {
         return ResponseEntity.ok(updatedElection);
     }
 
+    // Delete Election
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteElection(@PathVariable Long id) {
+    public ResponseEntity<String> deleteElection(@PathVariable Long id) {
 
-        electionService.deleteElection(id);
+        boolean deleted = electionService.deleteElection(id);
 
-        return ResponseEntity.noContent().build();
+        if (!deleted) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok("Election deleted successfully.");
     }
 }

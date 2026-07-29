@@ -19,7 +19,14 @@ public class Election {
 
     private LocalDateTime endDate;
 
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private ElectionStatus status;
+
+    public enum ElectionStatus {
+        UPCOMING,
+        ACTIVE,
+        COMPLETED
+    }
 
     public Election() {
     }
@@ -64,11 +71,11 @@ public class Election {
         this.endDate = endDate;
     }
 
-    public String getStatus() {
+    public ElectionStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(ElectionStatus status) {
         this.status = status;
     }
 }
