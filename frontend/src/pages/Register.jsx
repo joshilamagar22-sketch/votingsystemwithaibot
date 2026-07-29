@@ -10,7 +10,7 @@ function Register() {
     // Basic User Fields
     const [name, setName] = useState('')
     const [age, setAge] = useState('')
-    const [phoneNumber, setPhoneNumber] = useState('')
+    const [phoneNumber, setPhoneNumber] = useState('+977')
     const [voterId, setVoterId] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
@@ -19,6 +19,9 @@ function Register() {
     const [position, setPosition] = useState('President')
     const [description, setDescription] = useState('')
     const [photoPreview, setPhotoPreview] = useState(null)
+
+    // Inline notice (replaces alert())
+    const [notice, setNotice] = useState(null) // { type: 'error' | 'success' | 'info', message: string }
 
     // Handle Image Upload for Candidates
     const handlePhotoUpload = (e) => {
@@ -35,15 +38,16 @@ function Register() {
     // Handle Registration Submission
     const handleSubmit = (e) => {
         e.preventDefault()
+        setNotice(null)
 
         if (!role) {
-            alert('Please select whether you are registering as a Voter or a Candidate.')
+            setNotice({ type: 'error', message: 'Please select whether you are registering as a Voter or a Candidate.' })
             return
         }
 
         // 1. Age Verification Check (Must be 18 or older)
         if (Number(age) < 18) {
-            alert('You must be at least 18 years old to register and vote.')
+            setNotice({ type: 'error', message: 'You must be at least 18 years old to register and vote.' })
             return
         }
 
@@ -55,7 +59,7 @@ function Register() {
             (user) => user.email?.trim().toLowerCase() === email.trim().toLowerCase()
         )
         if (emailExists) {
-            alert('An account with this Email Address already exists.')
+            setNotice({ type: 'error', message: 'An account with this Email Address already exists.' })
             return
         }
 
@@ -63,7 +67,7 @@ function Register() {
             (user) => user.voterId?.trim().toLowerCase() === voterId.trim().toLowerCase()
         )
         if (voterIdExists) {
-            alert('An account with this Voter ID already exists.')
+            setNotice({ type: 'error', message: 'An account with this Voter ID already exists.' })
             return
         }
 
@@ -71,7 +75,7 @@ function Register() {
             (user) => user.phoneNumber?.trim() === phoneNumber.trim()
         )
         if (phoneExists) {
-            alert('An account with this Phone Number already exists.')
+            setNotice({ type: 'error', message: 'An account with this Phone Number already exists.' })
             return
         }
 
@@ -101,14 +105,14 @@ function Register() {
             localStorage.setItem('voteai_candidates', JSON.stringify([...existingCandidates, candidateData]))
 
             localStorage.setItem('voteai_current_user', JSON.stringify(candidateData))
-            alert('Candidate profile registered successfully!')
-            navigate('/candidate-dashboard')
+            setNotice({ type: 'success', message: 'Candidate profile registered successfully!' })
+            setTimeout(() => navigate('/candidate-dashboard'), 1200)
         } else {
             localStorage.setItem('voteai_users', JSON.stringify([...existingUsers, userData]))
 
             localStorage.setItem('voteai_current_user', JSON.stringify(userData))
-            alert('Voter account registered successfully!')
-            navigate('/voter-dashboard')
+            setNotice({ type: 'success', message: 'Voter account registered successfully!' })
+            setTimeout(() => navigate('/voter-dashboard'), 1200)
         }
     }
 
@@ -126,6 +130,12 @@ function Register() {
         <div style={{ maxWidth: '520px', width: '90%', margin: '40px auto', padding: '28px', background: '#ffffff', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.06)', border: '1px solid #e2e8f0', boxSizing: 'border-box' }}>
             <h2 className="app-title" style={{ textAlign: 'center', marginBottom: '6px' }}>VoteAI Portal Registration</h2>
             <p className="app-subtitle" style={{ textAlign: 'center', marginBottom: '20px', color: '#64748b', fontSize: '0.9rem' }}>Create your account to access your portal</p>
+
+            {notice && (
+                <div className={`inline-notice ${notice.type}`}>
+                    {notice.message}
+                </div>
+            )}
 
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px', textAlign: 'left' }}>
 
@@ -206,7 +216,7 @@ function Register() {
                             type="tel"
                             value={phoneNumber}
                             onChange={(e) => setPhoneNumber(e.target.value)}
-                            placeholder="+1 234 567 890"
+                            placeholder="+977 981234567890"
                             required
                             style={inputStyle}
                         />

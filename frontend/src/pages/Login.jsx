@@ -5,13 +5,13 @@ function Login() {
     const [name, setName] = useState('')
     const [voterId, setVoterId] = useState('')
     const [password, setPassword] = useState('')
-    const [error, setError] = useState('')
+    const [notice, setNotice] = useState(null) // { type: 'error' | 'success' | 'info', message: string }
 
     const navigate = useNavigate()
 
     const handleLogin = (e) => {
         e.preventDefault()
-        setError('')
+        setNotice(null)
 
         const cleanName = name.trim().toLowerCase()
         const cleanVoterId = voterId.trim().toLowerCase()
@@ -76,7 +76,7 @@ function Login() {
                 localStorage.setItem('voteai_current_user', JSON.stringify(candidateUser))
                 navigate('/candidate-dashboard')
             } else {
-                setError('Invalid Username, Voter ID, or Password. Please try again.')
+                setNotice({ type: 'error', message: 'Invalid Username, Voter ID, or Password. Please try again.' })
             }
         }
     }
@@ -86,9 +86,9 @@ function Login() {
             <h2 className="app-title" style={{ textAlign: 'center', marginBottom: '8px' }}>VoteAI Portal Login</h2>
             <p className="app-subtitle" style={{ textAlign: 'center', marginBottom: '25px', color: '#64748b' }}>Enter your credentials to access your portal</p>
 
-            {error && (
-                <div style={{ padding: '12px', background: '#fef2f2', border: '1px solid #fecaca', color: '#dc2626', borderRadius: '8px', marginBottom: '20px', fontSize: '0.9rem', textAlign: 'center' }}>
-                    {error}
+            {notice && (
+                <div className={`inline-notice ${notice.type}`}>
+                    {notice.message}
                 </div>
             )}
 

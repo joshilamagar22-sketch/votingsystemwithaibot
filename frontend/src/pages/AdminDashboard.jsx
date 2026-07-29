@@ -9,14 +9,16 @@ function AdminDashboard() {
     const [candidates, setCandidates] = useState([])
     const [electionActive, setElectionActive] = useState(false)
     const [activeTab, setActiveTab] = useState('overview') // 'overview' | 'users' | 'candidates'
+    const [notice, setNotice] = useState(null) // { type: 'error' | 'success' | 'info', message: string }
+    const [pendingDeleteId, setPendingDeleteId] = useState(null) // user awaiting delete confirmation
 
     // Load data from localStorage on mount
     useEffect(() => {
         // Auth Check
         const currentUser = JSON.parse(localStorage.getItem('voteai_current_user') || '{}')
         if (currentUser.role !== 'admin') {
-            alert('Access Denied. Admin privileges required.')
-            navigate('/login')
+            setNotice({ type: 'error', message: 'Access Denied. Admin privileges required.' })
+            setTimeout(() => navigate('/login'), 1800)
             return
         }
 
@@ -34,21 +36,35 @@ function AdminDashboard() {
         const nextState = !electionActive
         setElectionActive(nextState)
         localStorage.setItem('voteai_election_active', JSON.stringify(nextState))
-        alert(`Election has been ${nextState ? 'STARTED' : 'STOPPED'}.`)
+        setNotice({
+            type: nextState ? 'success' : 'info',
+            message: `Election has been ${nextState ? 'STARTED' : 'STOPPED'}.`
+        })
     }
 
-    // Delete a user
-    const handleDeleteUser = (userId) => {
-        if (window.confirm('Are you sure you want to delete this user?')) {
-            const updatedUsers = users.filter(u => u.id !== userId)
-            const updatedCandidates = candidates.filter(c => c.id !== userId)
+    // Step 1: user clicks Delete — show inline confirm instead of window.confirm
+    const requestDeleteUser = (userId) => {
+        setPendingDeleteId(userId)
+    }
 
-            setUsers(updatedUsers)
-            setCandidates(updatedCandidates)
+    // Step 2a: user confirms — actually delete
+    const confirmDeleteUser = () => {
+        const updatedUsers = users.filter(u => u.id !== pendingDeleteId)
+        const updatedCandidates = candidates.filter(c => c.id !== pendingDeleteId)
 
-            localStorage.setItem('voteai_users', JSON.stringify(updatedUsers))
-            localStorage.setItem('voteai_candidates', JSON.stringify(updatedCandidates))
-        }
+        setUsers(updatedUsers)
+        setCandidates(updatedCandidates)
+
+        localStorage.setItem('voteai_users', JSON.stringify(updatedUsers))
+        localStorage.setItem('voteai_candidates', JSON.stringify(updatedCandidates))
+
+        setPendingDeleteId(null)
+        setNotice({ type: 'success', message: 'User deleted successfully.' })
+    }
+
+    // Step 2b: user backs out
+    const cancelDeleteUser = () => {
+        setPendingDeleteId(null)
     }
 
     // Handle Admin Logout
@@ -73,6 +89,24 @@ function AdminDashboard() {
                     Logout Admin
                 </button>
             </div>
+
+            {/* Inline notice (replaces alert()) */}
+            {notice && (
+                <div className={`inline-notice ${notice.type}`}>
+                    {notice.message}
+                </div>
+            )}
+
+            {/* Inline confirm (replaces window.confirm()) */}
+            {pendingDeleteId && (
+                <div className="inline-confirm">
+                    <p>Are you sure you want to delete this user? This can't be undone.</p>
+                    <div className="inline-confirm-actions">
+                        <button className="confirm-yes" onClick={confirmDeleteUser}>Delete</button>
+                        <button className="confirm-no" onClick={cancelDeleteUser}>Cancel</button>
+                    </div>
+                </div>
+            )}
 
             {/* Election Control Banner */}
             <div style={{ background: electionActive ? '#f0fdf4' : '#fef2f2', border: `1px solid ${electionActive ? '#bbf7d0' : '#fecaca'}`, padding: '20px', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
@@ -206,7 +240,7 @@ function AdminDashboard() {
                                         <td style={{ padding: '12px', textAlign: 'right' }}>
                                             {u.role !== 'admin' && (
                                                 <button
-                                                    onClick={() => handleDeleteUser(u.id)}
+                                                    onClick={() => requestDeleteUser(u.id)}
                                                     style={{ background: '#fee2e2', color: '#dc2626', border: '1px solid #fca5a5', padding: '6px 10px', borderRadius: '6px', cursor: 'pointer' }}
                                                 >
                                                     Delete

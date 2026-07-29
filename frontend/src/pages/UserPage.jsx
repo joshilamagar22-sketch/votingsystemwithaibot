@@ -18,6 +18,9 @@ function UserPage() {
     // 3. Dynamic Results State
     const [results, setResults] = useState({})
 
+    // Inline notice (replaces alert())
+    const [notice, setNotice] = useState(null) // { type: 'error' | 'success' | 'info', message: string }
+
     // Fetch user, candidates, and vote status on mount
     useEffect(() => {
         // Retrieve logged-in voter session
@@ -60,15 +63,16 @@ function UserPage() {
     // Submit Final Ballot to voteai storage
     const handleSubmitVote = (e) => {
         e.preventDefault()
+        setNotice(null)
 
         if (hasVoted) {
-            alert('You have already cast your vote in this election!')
+            setNotice({ type: 'error', message: 'You have already cast your vote in this election!' })
             return
         }
 
         const selectedCount = Object.keys(selectedVotes).length
         if (selectedCount === 0) {
-            alert('Please select at least one candidate before submitting.')
+            setNotice({ type: 'error', message: 'Please select at least one candidate before submitting.' })
             return
         }
 
@@ -92,7 +96,7 @@ function UserPage() {
 
         setHasVoted(true)
         setShowVoteModal(false)
-        alert('🎉 Your vote has been recorded successfully in VoteAI!')
+        setNotice({ type: 'success', message: '🎉 Your vote has been recorded successfully in VoteAI!' })
     }
 
     // Extract unique positions dynamically from registered candidates
@@ -104,6 +108,13 @@ function UserPage() {
 
     return (
         <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '20px' }}>
+            {/* Top-level notice — shows the success message once the modal has closed */}
+            {notice && !showVoteModal && (
+                <div className={`inline-notice ${notice.type}`}>
+                    {notice.message}
+                </div>
+            )}
+
             {/* Top Banner Header */}
             <div style={{
                 background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
@@ -146,7 +157,7 @@ function UserPage() {
                         </span>
                     ) : (
                         <button
-                            onClick={() => setShowVoteModal(true)}
+                            onClick={() => { setNotice(null); setShowVoteModal(true) }}
                             disabled={candidates.length === 0}
                             style={{
                                 padding: '12px 28px',
@@ -297,6 +308,13 @@ function UserPage() {
                                 ✕
                             </button>
                         </div>
+
+                        {/* In-modal notice — shows the two validation errors while the modal is open */}
+                        {notice && (
+                            <div className={`inline-notice ${notice.type}`}>
+                                {notice.message}
+                            </div>
+                        )}
 
                         <form onSubmit={handleSubmitVote}>
                             {registeredPositions.map((pos) => {
