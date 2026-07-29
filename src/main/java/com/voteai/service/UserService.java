@@ -1,5 +1,6 @@
 package com.voteai.service;
 
+import com.voteai.security.JwtUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import com.voteai.dto.LoginRequest;
 import com.voteai.entity.User;
@@ -16,11 +17,16 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private JwtUtil jwtUtil;
+
     public User registerUser(User user) {
 
-        user.setPassword(
-                passwordEncoder.encode(user.getPassword())
-        );
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+        if (user.getRole() == null || user.getRole().isBlank()) {
+            user.setRole("ROLE_VOTER");
+        }
 
         return userRepository.save(user);
     }
@@ -40,6 +46,8 @@ public class UserService {
             return "Invalid password";
         }
 
-        return "Login Successful";
+        String token = jwtUtil.generateToken(user.getEmail());
+
+        return token;
     }
 }
